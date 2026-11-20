@@ -147,7 +147,9 @@ Rensa beräkning
 </div>
 
 <label>Artikelnummer</label>
-<input type="text" id="plockArtikel">
+<input type="text" id="plockArtikel" list="artikelLista">
+
+<datalist id="artikelLista"></datalist>
 
 <label>Antal att plocka</label>
 <input type="number" id="plockAntal">
@@ -537,20 +539,28 @@ async function hamtaArtiklar(){
 
     register = {};
 
-    artiklar.forEach(a => {
+const lista =
+document.getElementById("artikelLista");
 
-        register[a.artikelnummer] = {
+lista.innerHTML = "";
 
-            beskrivning: a.beskrivning || "",
-            styckvikt: Number(a.styckvikt),
-            verifierad: a.verifierad,
-            historik: []
+artiklar.forEach(a => {
 
-        };
+    register[a.artikelnummer] = {
 
-    });
+        beskrivning: a.beskrivning || "",
+        styckvikt: Number(a.styckvikt),
+        verifierad: a.verifierad,
+        historik: []
 
-    visaRegister();
+    };
+
+    lista.innerHTML +=
+    `<option value="${a.artikelnummer}">`;
+
+});
+
+visaRegister();
 }
 
 function rensaBerakning(){
