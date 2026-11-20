@@ -114,14 +114,6 @@ th,td{
     gap:10px;
 }
 
-.button-green{
-    background:#28a745;
-}
-
-.button-green:hover{
-    background:#218838;
-}
-
 .button-orange{
     background:#ff9800;
 }
@@ -144,12 +136,6 @@ th,td{
 <h2>Plockberäkning</h2>
 
 <div class="header-buttons">
-
-<button
-class="button-green"
-onclick="nyArtikel()">
-Ny artikel
-</button>
 
 <button
 class="button-orange"
@@ -707,18 +693,6 @@ function importExcel(){
     });
 
     visaRegister();
-}
-function nyArtikel(){
-
-    document
-    .getElementById("artikel")
-    .scrollIntoView({
-        behavior:"smooth"
-    });
-
-    document
-    .getElementById("artikel")
-    .focus();
 }
 
 function sendToScale(){
