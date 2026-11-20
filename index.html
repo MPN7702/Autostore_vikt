@@ -138,8 +138,8 @@ th,td{
 
 <button
 class="button-orange"
-onclick="sendToScale()">
-Skicka till våg
+onclick="rensaBerakning()">
+Rensa beräkning
 </button>
 
 </div>
@@ -553,7 +553,7 @@ function raderaArtikel(artikel){
     visaRegister();
 }
 
-function sendToScale(){
+function rensaBerakning(){
 
     if(senasteMalvikt <= 0){
 
@@ -564,11 +564,18 @@ function sendToScale(){
         return;
     }
 
-    alert(
-        "Målvikt skickas till våg:\n\n" +
-        senasteMalvikt.toFixed(3) +
-        " g"
-    );
+function rensaBerakning(){
+
+    document.getElementById("resultat").innerHTML =
+    "Ingen beräkning gjord";
+
+    document.getElementById("plockArtikel").value = "";
+    document.getElementById("plockAntal").value = "";
+
+    senasteMalvikt = 0;
+
+    document.getElementById("plockArtikel").focus();
+}
 
     document.getElementById("resultat").innerHTML =
     "Ingen beräkning gjord";
