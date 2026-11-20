@@ -714,30 +714,12 @@ function sendToScale(){
         " g"
     );
 
-    /*
-    Här läggs senare koden för
-    Ohaus Ranger Count 3000.
-    */
-}
-
-    let styckvikt =
-    register[artikel].styckvikt;
-
-    let malvikt =
-    styckvikt * antal;
-
-    alert(
-        "Send To Scale\n\n" +
-        "Artikel: " + artikel + "\n" +
-        "Antal: " + antal + "\n" +
-        "Målvikt: " +
-        malvikt.toFixed(3) +
-        " g"
-    );
     document.getElementById("resultat").innerHTML =
-"Ingen beräkning gjord";
+    "Ingen beräkning gjord";
 
-senasteMalvikt = 0;
+    senasteMalvikt = 0;
+
+    document.getElementById("plockArtikel").focus();
 }
 hamtaArtiklar();
 
