@@ -358,7 +358,7 @@ async function sparaArtikel(){
 
     };
 
-    await fetch(
+await fetch(
     "https://vikt-api.mr-magoo21.workers.dev/spara",
     {
         method:"POST",
@@ -374,7 +374,7 @@ async function sparaArtikel(){
     }
 );
 
-    visaRegister();
+await hamtaArtiklar();
 
     document.getElementById("info").innerHTML =
     "Artikel sparad. Styckvikt: " +
@@ -667,6 +667,31 @@ function importExcel(){
     reader.readAsArrayBuffer(file);
 
 }
+    async function hamtaArtiklar(){
+
+    const response = await fetch(
+        "https://vikt-api.mr-magoo21.workers.dev/artiklar"
+    );
+
+    const artiklar = await response.json();
+
+    register = {};
+
+    artiklar.forEach(a => {
+
+        register[a.artikelnummer] = {
+
+            beskrivning: a.beskrivning || "",
+            styckvikt: Number(a.styckvikt),
+            verifierad: a.verifierad,
+            historik: []
+
+        };
+
+    });
+
+    visaRegister();
+}
 function nyArtikel(){
 
     document
@@ -717,7 +742,7 @@ function sendToScale(){
         " g"
     );
 }
-visaRegister();
+hamtaArtiklar();
 
 </script>
 
