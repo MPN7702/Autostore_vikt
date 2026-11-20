@@ -527,7 +527,7 @@ function raderaArtikel(artikel){
 }
 
 
-    async function hamtaArtiklar(){
+async function hamtaArtiklar(){
 
     const response = await fetch(
         "https://vikt-api.mr-magoo21.workers.dev/artiklar"
@@ -555,17 +555,6 @@ function raderaArtikel(artikel){
 
 function rensaBerakning(){
 
-    if(senasteMalvikt <= 0){
-
-        alert(
-            "Beräkna målvikten först."
-        );
-
-        return;
-    }
-
-function rensaBerakning(){
-
     document.getElementById("resultat").innerHTML =
     "Ingen beräkning gjord";
 
@@ -577,16 +566,6 @@ function rensaBerakning(){
     document.getElementById("plockArtikel").focus();
 }
 
-    document.getElementById("resultat").innerHTML =
-    "Ingen beräkning gjord";
-
-    document.getElementById("plockArtikel").value = "";
-    document.getElementById("plockAntal").value = "";
-
-    senasteMalvikt = 0;
-
-    document.getElementById("plockArtikel").focus();
-}
 hamtaArtiklar();
 
 </script>
