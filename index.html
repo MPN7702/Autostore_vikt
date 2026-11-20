@@ -140,7 +140,7 @@ th,td{
 <button
 class="button-orange"
 onclick="sendToScale()">
-Send to Scale
+Skicka till våg
 </button>
 
 </div>
@@ -268,6 +268,7 @@ Exportera Excel
 <script>
 
 let register = {};
+let senasteMalvikt = 0;
 
 async function sparaData(){
 
@@ -447,6 +448,7 @@ function beraknaPlock(){
 
     let totalvikt =
     styckvikt * antal;
+    senasteMalvikt = totalvikt;
 
     document.getElementById("resultat").innerHTML =
 
@@ -697,25 +699,26 @@ function importExcel(){
 
 function sendToScale(){
 
-    let artikel =
-    document
-    .getElementById("plockArtikel")
-    .value
-    .trim();
+    if(senasteMalvikt <= 0){
 
-    let antal =
-    Number(
-        document
-        .getElementById("plockAntal")
-        .value
-    );
-
-    if(!register[artikel]){
-
-        alert("Artikel saknas");
+        alert(
+            "Beräkna målvikten först."
+        );
 
         return;
     }
+
+    alert(
+        "Målvikt skickas till våg:\n\n" +
+        senasteMalvikt.toFixed(3) +
+        " g"
+    );
+
+    /*
+    Här läggs senare koden för
+    Ohaus Ranger Count 3000.
+    */
+}
 
     let styckvikt =
     register[artikel].styckvikt;
