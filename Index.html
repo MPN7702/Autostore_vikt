@@ -3,23 +3,25 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Viktplockning Artikelregister</title>
+<title>Viktregister AutoStore</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <style>
 body{
     font-family:Arial,sans-serif;
-    max-width:900px;
+    background:#f5f5f5;
+    max-width:1400px;
     margin:auto;
     padding:20px;
-    background:#f2f2f2;
 }
 
 .card{
     background:white;
+    border-radius:10px;
     padding:20px;
     margin-bottom:20px;
-    border-radius:10px;
-    box-shadow:0 2px 5px rgba(0,0,0,0.2);
+    box-shadow:0 2px 6px rgba(0,0,0,0.15);
 }
 
 h2{
@@ -28,23 +30,23 @@ h2{
 
 input{
     width:100%;
-    padding:10px;
-    margin-top:5px;
-    margin-bottom:10px;
+    padding:8px;
+    margin:5px 0 10px 0;
     box-sizing:border-box;
 }
 
 button{
-    padding:10px 20px;
-    cursor:pointer;
     background:#0066cc;
     color:white;
     border:none;
+    padding:10px 15px;
     border-radius:5px;
+    cursor:pointer;
+    margin-right:5px;
 }
 
 button:hover{
-    background:#004c99;
+    background:#004d99;
 }
 
 table{
@@ -52,7 +54,7 @@ table{
     border-collapse:collapse;
 }
 
-th,td{
+th, td{
     border:1px solid #ddd;
     padding:8px;
 }
@@ -62,10 +64,29 @@ th{
     color:white;
 }
 
+.status-green{
+    color:green;
+    font-weight:bold;
+}
+
+.status-yellow{
+    color:orange;
+    font-weight:bold;
+}
+
+.status-red{
+    color:red;
+    font-weight:bold;
+}
+
 .result{
-    font-size:20px;
+    font-size:22px;
     font-weight:bold;
     color:green;
+}
+
+.history{
+    font-size:12px;
 }
 </style>
 </head>
@@ -73,40 +94,61 @@ th{
 <body>
 
 <div class="card">
-<h2>Registrera artikel</h2>
+<h2>Registrera / Uppdatera artikel</h2>
 
 <label>Artikelnummer</label>
 <input type="text" id="artikel">
 
 <label>Beskrivning</label>
-<input type="text" id="namn">
+<input type="text" id="beskrivning">
 
-<label>Antal referensdelar</label>
-<input type="number" id="antalRef" value="200">
+<label>Referensantal (normalt 200)</label>
+<input type="number" id="antal" value="200">
 
 <label>Total vikt (gram)</label>
-<input type="number" step="0.0001" id="viktRef">
+<input type="number" step="0.000001" id="vikt">
 
 <button onclick="sparaArtikel()">Spara artikel</button>
+<button onclick="uppdateraVikt()">Uppdatera vikt</button>
 
-<p id="sparad"></p>
+<p id="info"></p>
+
 </div>
 
 <div class="card">
 <h2>Plockberäkning</h2>
 
 <label>Artikelnummer</label>
-<input type="text" id="sokArtikel">
+<input type="text" id="plockArtikel">
 
 <label>Antal att plocka</label>
-<input type="number" id="antalPlock">
+<input type="number" id="plockAntal">
 
-<button onclick="berakna()">Beräkna</button>
+<button onclick="beraknaPlock()">Beräkna målvikt</button>
 
-<p class="result" id="resultat"></p>
+<div class="result" id="resultat"></div>
+
 </div>
 
 <div class="card">
+<h2>Sök</h2>
+<input type="text" id="sok" placeholder="Artikelnummer eller beskrivning"
+onkeyup="visaRegister()">
+</div>
+
+<div class="card">
+
+<h2>Import / Export</h2>
+
+<input type="file" id="excelFile">
+
+<button onclick="importExcel()">Importera Excel</button>
+<button onclick="exportExcel()">Exportera Excel</button>
+
+</div>
+
+<div class="card">
+
 <h2>Artikelregister</h2>
 
 <table>
@@ -114,95 +156,301 @@ th{
 <tr>
 <th>Artikel</th>
 <th>Beskrivning</th>
-<th>Styckvikt (g)</th>
+<th>Styckvikt</th>
+<th>Senast verifierad</th>
+<th>Status</th>
+<th>Historik</th>
 <th>Radera</th>
 </tr>
 </thead>
+
 <tbody id="tabell"></tbody>
+
 </table>
+
 </div>
 
 <script>
 
-let register = JSON.parse(localStorage.getItem("viktregister")) || {};
+let register =
+JSON.parse(localStorage.getItem("viktregister")) || {};
+
+function idag(){
+    return new Date().toISOString().split("T")[0];
+}
+
+function statusFarg(datum){
+
+    let dagar =
+    Math.floor(
+        (new Date() - new Date(datum))
+        /(1000*60*60*24)
+    );
+
+    if(dagar < 365)
+        return '<span class="status-green">🟢 OK</span>';
+
+    if(dagar < 730)
+        return '<span class="status-yellow">🟡 Kontrollera</span>';
+
+    return '<span class="status-red">🔴 För gammal</span>';
+}
 
 function sparaArtikel(){
 
-    let artikel = document.getElementById("artikel").value.trim();
-    let namn = document.getElementById("namn").value.trim();
-    let antal = Number(document.getElementById("antalRef").value);
-    let vikt = Number(document.getElementById("viktRef").value);
+    let artikel =
+    document.getElementById("artikel").value.trim();
 
-    if(!artikel || antal <=0 || vikt <=0){
-        alert("Fyll i alla fält");
+    let beskrivning =
+    document.getElementById("beskrivning").value.trim();
+
+    let antal =
+    Number(document.getElementById("antal").value);
+
+    let vikt =
+    Number(document.getElementById("vikt").value);
+
+    if(!artikel || antal <= 0 || vikt <= 0){
+        alert("Saknade uppgifter");
         return;
     }
 
     let styckvikt = vikt / antal;
 
     register[artikel] = {
-        namn: namn,
-        styckvikt: styckvikt
+        beskrivning,
+        styckvikt,
+        verifierad:idag(),
+        historik:[{
+            datum:idag(),
+            styckvikt
+        }]
     };
 
-    localStorage.setItem("viktregister", JSON.stringify(register));
-
-    document.getElementById("sparad").innerHTML =
-        "Sparad. Styckvikt: <b>" + styckvikt.toFixed(6) + " g</b>";
-
+    spara();
     visaRegister();
+
+    document.getElementById("info").innerHTML =
+    "Artikel sparad. Styckvikt = " +
+    styckvikt.toFixed(6) + " g";
 }
 
-function berakna(){
+function uppdateraVikt(){
 
-    let artikel = document.getElementById("sokArtikel").value.trim();
-    let antal = Number(document.getElementById("antalPlock").value);
+    let artikel =
+    document.getElementById("artikel").value.trim();
+
+    if(!register[artikel]){
+        alert("Artikeln finns inte");
+        return;
+    }
+
+    let antal =
+    Number(document.getElementById("antal").value);
+
+    let vikt =
+    Number(document.getElementById("vikt").value);
+
+    let nyVikt = vikt / antal;
+
+    register[artikel].styckvikt = nyVikt;
+    register[artikel].verifierad = idag();
+
+    register[artikel].historik.push({
+        datum:idag(),
+        styckvikt:nyVikt
+    });
+
+    spara();
+    visaRegister();
+
+    document.getElementById("info").innerHTML =
+    "Vikt uppdaterad.";
+}
+
+function beraknaPlock(){
+
+    let artikel =
+    document.getElementById("plockArtikel").value.trim();
+
+    let antal =
+    Number(document.getElementById("plockAntal").value);
 
     if(!register[artikel]){
         alert("Artikel saknas");
         return;
     }
 
-    let styckvikt = register[artikel].styckvikt;
-    let total = styckvikt * antal;
+    let styckvikt =
+    register[artikel].styckvikt;
+
+    let vikt =
+    styckvikt * antal;
 
     document.getElementById("resultat").innerHTML =
-        "Målvikt: " +
-        total.toFixed(3) +
-        " g<br>Styckvikt: " +
-        styckvikt.toFixed(6) +
-        " g";
+
+    `
+    Målvikt: ${vikt.toFixed(3)} g<br>
+    Styckvikt: ${styckvikt.toFixed(6)} g/st
+    `;
 }
 
 function raderaArtikel(artikel){
 
-    if(confirm("Radera artikel " + artikel + "?")){
+    if(confirm("Radera artikel?")){
+
         delete register[artikel];
-        localStorage.setItem("viktregister", JSON.stringify(register));
+
+        spara();
         visaRegister();
     }
 }
 
 function visaRegister(){
 
+    let filter =
+    document.getElementById("sok")
+    .value.toLowerCase();
+
     let html = "";
 
-    for(let artikel in register){
+    Object.entries(register).forEach(([art,data])=>{
+
+        let text =
+        (art + " " +
+         data.beskrivning)
+         .toLowerCase();
+
+        if(!text.includes(filter))
+            return;
+
+        let historik =
+        data.historik.map(h=>
+        `${h.datum}: ${h.styckvikt.toFixed(6)}`
+        ).join("<br>");
 
         html += `
         <tr>
-            <td>${artikel}</td>
-            <td>${register[artikel].namn}</td>
-            <td>${register[artikel].styckvikt.toFixed(6)}</td>
+            <td>${art}</td>
+            <td>${data.beskrivning}</td>
+            <td>${data.styckvikt.toFixed(6)}</td>
+            <td>${data.verifierad}</td>
+            <td>${statusFarg(data.verifierad)}</td>
+            <td class="history">${historik}</td>
             <td>
-                <button onclick="raderaArtikel('${artikel}')">
-                Radera
-                </button>
+            <button onclick="raderaArtikel('${art}')">
+            Radera
+            </button>
             </td>
-        </tr>`;
-    }
+        </tr>
+        `;
+    });
 
     document.getElementById("tabell").innerHTML = html;
+}
+
+function spara(){
+
+    localStorage.setItem(
+        "viktregister",
+        JSON.stringify(register)
+    );
+}
+
+function exportExcel(){
+
+    let data = [];
+
+    Object.entries(register).forEach(([art,obj])=>{
+
+        data.push({
+
+            Artikel:art,
+            Beskrivning:obj.beskrivning,
+            Styckvikt:obj.styckvikt,
+            SenastVerifierad:obj.verifierad
+        });
+    });
+
+    let ws = XLSX.utils.json_to_sheet(data);
+
+    let wb = XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(
+        wb,
+        ws,
+        "Viktregister"
+    );
+
+    XLSX.writeFile(
+        wb,
+        "Viktregister.xlsx"
+    );
+}
+
+function importExcel(){
+
+    let file =
+    document.getElementById("excelFile")
+    .files[0];
+
+    if(!file){
+        alert("Välj fil");
+        return;
+    }
+
+    let reader =
+    new FileReader();
+
+    reader.onload = function(e){
+
+        let data =
+        new Uint8Array(e.target.result);
+
+        let wb =
+        XLSX.read(data,{type:"array"});
+
+        let ws =
+        wb.Sheets[
+            wb.SheetNames[0]
+        ];
+
+        let rows =
+        XLSX.utils.sheet_to_json(ws);
+
+        rows.forEach(r=>{
+
+            if(!r.Artikel)
+                return;
+
+            register[r.Artikel] = {
+
+                beskrivning:
+                r.Beskrivning || "",
+
+                styckvikt:
+                Number(r.Styckvikt || 0),
+
+                verifierad:
+                r.SenastVerifierad || idag(),
+
+                historik:[{
+                    datum:
+                    r.SenastVerifierad || idag(),
+
+                    styckvikt:
+                    Number(r.Styckvikt || 0)
+                }]
+            };
+        });
+
+        spara();
+        visaRegister();
+
+        alert("Import klar");
+    };
+
+    reader.readAsArrayBuffer(file);
 }
 
 visaRegister();
