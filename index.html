@@ -431,10 +431,7 @@ function beraknaPlock(){
     ${styckvikt.toFixed(6)} g
     </span>
     `;
-document.getElementById("plockArtikel").value = "";
-document.getElementById("plockAntal").value = "";
 
-document.getElementById("plockArtikel").focus();
 }
 
 function visaRegister(){
@@ -525,9 +522,9 @@ function raderaArtikel(artikel){
 
         visaRegister();
 
-    
-}
     }
+
+}
 
 
     async function hamtaArtiklar(){
@@ -575,6 +572,9 @@ function sendToScale(){
 
     document.getElementById("resultat").innerHTML =
     "Ingen beräkning gjord";
+
+    document.getElementById("plockArtikel").value = "";
+    document.getElementById("plockAntal").value = "";
 
     senasteMalvikt = 0;
 
