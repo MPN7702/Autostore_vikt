@@ -101,6 +101,34 @@ th,td{
     color:red;
     font-weight:bold;
 }
+    .header-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+}
+
+.header-buttons{
+    display:flex;
+    gap:10px;
+}
+
+.button-green{
+    background:#28a745;
+}
+
+.button-green:hover{
+    background:#218838;
+}
+
+.button-orange{
+    background:#ff9800;
+}
+
+.button-orange:hover{
+    background:#e68900;
+}
 
 </style>
 </head>
@@ -111,7 +139,27 @@ th,td{
 
 <div class="card">
 
+<div class="header-row">
+
 <h2>Plockberäkning</h2>
+
+<div class="header-buttons">
+
+<button
+class="button-green"
+onclick="nyArtikel()">
+Ny artikel
+</button>
+
+<button
+class="button-orange"
+onclick="sendToScale()">
+Send to Scale
+</button>
+
+</div>
+
+</div>
 
 <label>Artikelnummer</label>
 <input type="text" id="plockArtikel">
@@ -119,7 +167,9 @@ th,td{
 <label>Antal att plocka</label>
 <input type="number" id="plockAntal">
 
-<button onclick="beraknaPlock()">Beräkna målvikt</button>
+<button onclick="beraknaPlock()">
+Beräkna målvikt
+</button>
 
 <div id="resultat" class="result">
 
@@ -128,8 +178,6 @@ Ingen beräkning gjord
 </div>
 
 </div>
-
-<!-- SÖK -->
 
 <div class="card">
 
@@ -609,7 +657,56 @@ function importExcel(){
     reader.readAsArrayBuffer(file);
 
 }
+function nyArtikel(){
 
+    document
+    .getElementById("artikel")
+    .scrollIntoView({
+        behavior:"smooth"
+    });
+
+    document
+    .getElementById("artikel")
+    .focus();
+}
+
+function sendToScale(){
+
+    let artikel =
+    document
+    .getElementById("plockArtikel")
+    .value
+    .trim();
+
+    let antal =
+    Number(
+        document
+        .getElementById("plockAntal")
+        .value
+    );
+
+    if(!register[artikel]){
+
+        alert("Artikel saknas");
+
+        return;
+    }
+
+    let styckvikt =
+    register[artikel].styckvikt;
+
+    let malvikt =
+    styckvikt * antal;
+
+    alert(
+        "Send To Scale\n\n" +
+        "Artikel: " + artikel + "\n" +
+        "Antal: " + antal + "\n" +
+        "Målvikt: " +
+        malvikt.toFixed(3) +
+        " g"
+    );
+}
 visaRegister();
 
 </script>
