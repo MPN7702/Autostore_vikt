@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AutoStore Viktregister</title>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <style>
 
@@ -241,29 +240,6 @@ Uppdatera vikt
 
 </div>
 
-<!-- IMPORT EXPORT -->
-
-<div class="card">
-
-<h2>Import / Export</h2>
-
-<input type="file" id="excelFile">
-
-<br><br>
-
-<button onclick="importExcel()">
-
-Importera Excel
-
-</button>
-
-<button onclick="exportExcel()">
-
-Exportera Excel
-
-</button>
-
-</div>
 
 <script>
 
@@ -554,64 +530,8 @@ function raderaArtikel(artikel){
 
         visaRegister();
 
-    }
-
+    
 }
-
-function exportExcel(){
-
-    let data = [];
-
-    Object.entries(register)
-
-    .forEach(([artikel,obj]) => {
-
-        data.push({
-
-        Artikel:artikel,
-        Beskrivning:obj.beskrivning,
-        Styckvikt:obj.styckvikt,
-        SenastVerifierad:obj.verifierad
-
-        });
-
-    });
-
-    let ws =
-    XLSX.utils.json_to_sheet(data);
-
-    let wb =
-    XLSX.utils.book_new();
-
-    XLSX.utils.book_append_sheet(
-
-        wb,
-        ws,
-        "Viktregister"
-
-    );
-
-    XLSX.writeFile(
-
-        wb,
-        "Viktregister.xlsx"
-
-    );
-
-}
-
-function importExcel(){
-
-    let file =
-    document.getElementById("excelFile")
-    .files[0];
-
-    if(!file){
-
-        alert("Välj fil");
-
-        return;
-
     }
 
     let reader =
