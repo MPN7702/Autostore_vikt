@@ -281,17 +281,12 @@ Exportera Excel
 
 <script>
 
-let register =
-JSON.parse(localStorage.getItem("viktregister")) || {};
+let register = {};
 
-function sparaData(){
-
-    localStorage.setItem(
-        "viktregister",
-        JSON.stringify(register)
-    );
+async function sparaData(){
 
 }
+
 
 function idag(){
 
@@ -319,7 +314,8 @@ function statusText(datum){
 
 }
 
-function sparaArtikel(){
+async function sparaArtikel(){
+
 
     let artikel =
     document.getElementById("artikel").value.trim();
@@ -362,7 +358,21 @@ function sparaArtikel(){
 
     };
 
-    sparaData();
+    await fetch(
+    "https://vikt-api.mr-magoo21.workers.dev/spara",
+    {
+        method:"POST",
+        headers:{
+            "Content-Type":"application/json"
+        },
+        body:JSON.stringify({
+            artikelnummer:artikel,
+            beskrivning:beskrivning,
+            styckvikt:styckvikt,
+            verifierad:idag()
+        })
+    }
+);
 
     visaRegister();
 
