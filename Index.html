@@ -1,1 +1,213 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Viktplockning Artikelregister</title>
 
+<style>
+body{
+    font-family:Arial,sans-serif;
+    max-width:900px;
+    margin:auto;
+    padding:20px;
+    background:#f2f2f2;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    margin-bottom:20px;
+    border-radius:10px;
+    box-shadow:0 2px 5px rgba(0,0,0,0.2);
+}
+
+h2{
+    margin-top:0;
+}
+
+input{
+    width:100%;
+    padding:10px;
+    margin-top:5px;
+    margin-bottom:10px;
+    box-sizing:border-box;
+}
+
+button{
+    padding:10px 20px;
+    cursor:pointer;
+    background:#0066cc;
+    color:white;
+    border:none;
+    border-radius:5px;
+}
+
+button:hover{
+    background:#004c99;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th,td{
+    border:1px solid #ddd;
+    padding:8px;
+}
+
+th{
+    background:#0066cc;
+    color:white;
+}
+
+.result{
+    font-size:20px;
+    font-weight:bold;
+    color:green;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+<h2>Registrera artikel</h2>
+
+<label>Artikelnummer</label>
+<input type="text" id="artikel">
+
+<label>Beskrivning</label>
+<input type="text" id="namn">
+
+<label>Antal referensdelar</label>
+<input type="number" id="antalRef" value="200">
+
+<label>Total vikt (gram)</label>
+<input type="number" step="0.0001" id="viktRef">
+
+<button onclick="sparaArtikel()">Spara artikel</button>
+
+<p id="sparad"></p>
+</div>
+
+<div class="card">
+<h2>Plockberäkning</h2>
+
+<label>Artikelnummer</label>
+<input type="text" id="sokArtikel">
+
+<label>Antal att plocka</label>
+<input type="number" id="antalPlock">
+
+<button onclick="berakna()">Beräkna</button>
+
+<p class="result" id="resultat"></p>
+</div>
+
+<div class="card">
+<h2>Artikelregister</h2>
+
+<table>
+<thead>
+<tr>
+<th>Artikel</th>
+<th>Beskrivning</th>
+<th>Styckvikt (g)</th>
+<th>Radera</th>
+</tr>
+</thead>
+<tbody id="tabell"></tbody>
+</table>
+</div>
+
+<script>
+
+let register = JSON.parse(localStorage.getItem("viktregister")) || {};
+
+function sparaArtikel(){
+
+    let artikel = document.getElementById("artikel").value.trim();
+    let namn = document.getElementById("namn").value.trim();
+    let antal = Number(document.getElementById("antalRef").value);
+    let vikt = Number(document.getElementById("viktRef").value);
+
+    if(!artikel || antal <=0 || vikt <=0){
+        alert("Fyll i alla fält");
+        return;
+    }
+
+    let styckvikt = vikt / antal;
+
+    register[artikel] = {
+        namn: namn,
+        styckvikt: styckvikt
+    };
+
+    localStorage.setItem("viktregister", JSON.stringify(register));
+
+    document.getElementById("sparad").innerHTML =
+        "Sparad. Styckvikt: <b>" + styckvikt.toFixed(6) + " g</b>";
+
+    visaRegister();
+}
+
+function berakna(){
+
+    let artikel = document.getElementById("sokArtikel").value.trim();
+    let antal = Number(document.getElementById("antalPlock").value);
+
+    if(!register[artikel]){
+        alert("Artikel saknas");
+        return;
+    }
+
+    let styckvikt = register[artikel].styckvikt;
+    let total = styckvikt * antal;
+
+    document.getElementById("resultat").innerHTML =
+        "Målvikt: " +
+        total.toFixed(3) +
+        " g<br>Styckvikt: " +
+        styckvikt.toFixed(6) +
+        " g";
+}
+
+function raderaArtikel(artikel){
+
+    if(confirm("Radera artikel " + artikel + "?")){
+        delete register[artikel];
+        localStorage.setItem("viktregister", JSON.stringify(register));
+        visaRegister();
+    }
+}
+
+function visaRegister(){
+
+    let html = "";
+
+    for(let artikel in register){
+
+        html += `
+        <tr>
+            <td>${artikel}</td>
+            <td>${register[artikel].namn}</td>
+            <td>${register[artikel].styckvikt.toFixed(6)}</td>
+            <td>
+                <button onclick="raderaArtikel('${artikel}')">
+                Radera
+                </button>
+            </td>
+        </tr>`;
+    }
+
+    document.getElementById("tabell").innerHTML = html;
+}
+
+visaRegister();
+
+</script>
+
+</body>
+</html>
