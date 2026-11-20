@@ -352,11 +352,6 @@ document.getElementById("info").innerHTML =
 
 document.getElementById("artikel").focus();
 
-    document.getElementById("info").innerHTML =
-    "Artikel sparad. Styckvikt: " +
-    styckvikt.toFixed(6) +
-    " g";
-
 }
 
 function uppdateraVikt(){
@@ -534,63 +529,7 @@ function raderaArtikel(artikel){
 }
     }
 
-    let reader =
-    new FileReader();
 
-    reader.onload = function(e){
-
-        let data =
-        new Uint8Array(e.target.result);
-
-        let wb =
-        XLSX.read(data,{type:"array"});
-
-        let ws =
-        wb.Sheets[
-        wb.SheetNames[0]
-        ];
-
-        let rows =
-        XLSX.utils.sheet_to_json(ws);
-
-        rows.forEach(r => {
-
-            if(!r.Artikel)
-                return;
-
-            register[r.Artikel] = {
-
-                beskrivning:
-                r.Beskrivning || "",
-
-                styckvikt:
-                Number(r.Styckvikt || 0),
-
-                verifierad:
-                r.SenastVerifierad || idag(),
-
-                historik:[{
-                    datum:
-                    r.SenastVerifierad || idag(),
-
-                    styckvikt:
-                    Number(r.Styckvikt || 0)
-                }]
-            };
-
-        });
-
-        sparaData();
-
-        visaRegister();
-
-        alert("Import klar");
-
-    };
-
-    reader.readAsArrayBuffer(file);
-
-}
     async function hamtaArtiklar(){
 
     const response = await fetch(
