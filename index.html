@@ -376,6 +376,19 @@ await fetch(
 
 await hamtaArtiklar();
 
+// Rensa formuläret
+document.getElementById("artikel").value = "";
+document.getElementById("beskrivning").value = "";
+document.getElementById("antal").value = "200";
+document.getElementById("vikt").value = "";
+
+document.getElementById("info").innerHTML =
+    "Artikel sparad. Styckvikt: " +
+    styckvikt.toFixed(6) +
+    " g";
+
+document.getElementById("artikel").focus();
+
     document.getElementById("info").innerHTML =
     "Artikel sparad. Styckvikt: " +
     styckvikt.toFixed(6) +
