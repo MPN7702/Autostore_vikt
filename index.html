@@ -3,35 +3,42 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Viktregister AutoStore</title>
+<title>AutoStore Viktregister</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <style>
+
 body{
-    font-family:Arial,sans-serif;
-    background:#f5f5f5;
+    font-family: Arial, sans-serif;
+    background:#f4f4f4;
+    padding:20px;
     max-width:1400px;
     margin:auto;
-    padding:20px;
 }
 
 .card{
     background:white;
-    border-radius:10px;
     padding:20px;
+    border-radius:10px;
     margin-bottom:20px;
-    box-shadow:0 2px 6px rgba(0,0,0,0.15);
+    box-shadow:0 2px 6px rgba(0,0,0,.15);
 }
 
 h2{
     margin-top:0;
 }
 
+label{
+    display:block;
+    font-weight:bold;
+    margin-top:10px;
+}
+
 input{
     width:100%;
-    padding:8px;
-    margin:5px 0 10px 0;
+    padding:10px;
+    margin-top:5px;
     box-sizing:border-box;
 }
 
@@ -41,8 +48,8 @@ button{
     border:none;
     padding:10px 15px;
     border-radius:5px;
+    margin-top:10px;
     cursor:pointer;
-    margin-right:5px;
 }
 
 button:hover{
@@ -54,68 +61,56 @@ table{
     border-collapse:collapse;
 }
 
-th, td{
-    border:1px solid #ddd;
-    padding:8px;
-}
-
 th{
     background:#0066cc;
     color:white;
 }
 
-.status-green{
+th,td{
+    border:1px solid #ddd;
+    padding:8px;
+    text-align:left;
+}
+
+.result{
+    font-size:40px;
+    text-align:center;
+    color:green;
+    font-weight:bold;
+    margin-top:20px;
+    background:#eef9ee;
+    padding:20px;
+    border-radius:10px;
+}
+
+.small{
+    font-size:12px;
+}
+
+.green{
     color:green;
     font-weight:bold;
 }
 
-.status-yellow{
+.yellow{
     color:orange;
     font-weight:bold;
 }
 
-.status-red{
+.red{
     color:red;
     font-weight:bold;
 }
 
-.result{
-    font-size:22px;
-    font-weight:bold;
-    color:green;
-}
-
-.history{
-    font-size:12px;
-}
 </style>
 </head>
 
 <body>
 
-<div class="card">
-<h2>Registrera / Uppdatera artikel</h2>
-
-<label>Artikelnummer</label>
-<input type="text" id="artikel">
-
-<label>Beskrivning</label>
-<input type="text" id="beskrivning">
-
-<label>Referensantal (normalt 200)</label>
-<input type="number" id="antal" value="200">
-
-<label>Total vikt (gram)</label>
-<input type="number" step="0.000001" id="vikt">
-
-<button onclick="sparaArtikel()">Spara artikel</button>
-<button onclick="uppdateraVikt()">Uppdatera vikt</button>
-
-<p id="info"></p>
-
-</div>
+<!-- PLOCKBERÄKNING -->
 
 <div class="card">
+
 <h2>Plockberäkning</h2>
 
 <label>Artikelnummer</label>
@@ -126,34 +121,40 @@ th{
 
 <button onclick="beraknaPlock()">Beräkna målvikt</button>
 
-<div class="result" id="resultat"></div>
+<div id="resultat" class="result">
+
+Ingen beräkning gjord
 
 </div>
 
+</div>
+
+<!-- SÖK -->
+
 <div class="card">
+
 <h2>Sök</h2>
-<input type="text" id="sok" placeholder="Artikelnummer eller beskrivning"
+
+<input
+type="text"
+id="sok"
+placeholder="Sök artikelnummer eller beskrivning"
 onkeyup="visaRegister()">
-</div>
-
-<div class="card">
-
-<h2>Import / Export</h2>
-
-<input type="file" id="excelFile">
-
-<button onclick="importExcel()">Importera Excel</button>
-<button onclick="exportExcel()">Exportera Excel</button>
 
 </div>
+
+<!-- ARTIKELREGISTER -->
 
 <div class="card">
 
 <h2>Artikelregister</h2>
 
 <table>
+
 <thead>
+
 <tr>
+
 <th>Artikel</th>
 <th>Beskrivning</th>
 <th>Styckvikt</th>
@@ -161,7 +162,9 @@ onkeyup="visaRegister()">
 <th>Status</th>
 <th>Historik</th>
 <th>Radera</th>
+
 </tr>
+
 </thead>
 
 <tbody id="tabell"></tbody>
@@ -170,30 +173,102 @@ onkeyup="visaRegister()">
 
 </div>
 
+<!-- REGISTRERA -->
+
+<div class="card">
+
+<h2>Registrera / Uppdatera artikel</h2>
+
+<label>Artikelnummer</label>
+<input type="text" id="artikel">
+
+<label>Beskrivning</label>
+<input type="text" id="beskrivning">
+
+<label>Referensantal</label>
+<input type="number" id="antal" value="200">
+
+<label>Total vikt (gram)</label>
+<input type="number" step="0.000001" id="vikt">
+
+<button onclick="sparaArtikel()">
+
+Spara artikel
+
+</button>
+
+<button onclick="uppdateraVikt()">
+
+Uppdatera vikt
+
+</button>
+
+<p id="info"></p>
+
+</div>
+
+<!-- IMPORT EXPORT -->
+
+<div class="card">
+
+<h2>Import / Export</h2>
+
+<input type="file" id="excelFile">
+
+<br><br>
+
+<button onclick="importExcel()">
+
+Importera Excel
+
+</button>
+
+<button onclick="exportExcel()">
+
+Exportera Excel
+
+</button>
+
+</div>
+
 <script>
 
 let register =
 JSON.parse(localStorage.getItem("viktregister")) || {};
 
-function idag(){
-    return new Date().toISOString().split("T")[0];
+function sparaData(){
+
+    localStorage.setItem(
+        "viktregister",
+        JSON.stringify(register)
+    );
+
 }
 
-function statusFarg(datum){
+function idag(){
+
+    return new Date()
+    .toISOString()
+    .split("T")[0];
+
+}
+
+function statusText(datum){
 
     let dagar =
     Math.floor(
-        (new Date() - new Date(datum))
-        /(1000*60*60*24)
+    (new Date()-new Date(datum))
+    /(1000*60*60*24)
     );
 
     if(dagar < 365)
-        return '<span class="status-green">🟢 OK</span>';
+        return '<span class="green">🟢 OK</span>';
 
     if(dagar < 730)
-        return '<span class="status-yellow">🟡 Kontrollera</span>';
+        return '<span class="yellow">🟡 Kontrollera</span>';
 
-    return '<span class="status-red">🔴 För gammal</span>';
+    return '<span class="red">🔴 För gammal</span>';
+
 }
 
 function sparaArtikel(){
@@ -210,29 +285,44 @@ function sparaArtikel(){
     let vikt =
     Number(document.getElementById("vikt").value);
 
-    if(!artikel || antal <= 0 || vikt <= 0){
-        alert("Saknade uppgifter");
+    if(!artikel || antal <=0 || vikt <=0){
+
+        alert("Fyll i alla fält");
         return;
+
     }
 
-    let styckvikt = vikt / antal;
+    const styckvikt =
+    vikt / antal;
 
     register[artikel] = {
-        beskrivning,
-        styckvikt,
-        verifierad:idag(),
-        historik:[{
-            datum:idag(),
-            styckvikt
-        }]
+
+        beskrivning: beskrivning,
+
+        styckvikt: styckvikt,
+
+        verifierad: idag(),
+
+        historik: [
+
+            {
+                datum:idag(),
+                styckvikt:styckvikt
+            }
+
+        ]
+
     };
 
-    spara();
+    sparaData();
+
     visaRegister();
 
     document.getElementById("info").innerHTML =
-    "Artikel sparad. Styckvikt = " +
-    styckvikt.toFixed(6) + " g";
+    "Artikel sparad. Styckvikt: " +
+    styckvikt.toFixed(6) +
+    " g";
+
 }
 
 function uppdateraVikt(){
@@ -241,8 +331,11 @@ function uppdateraVikt(){
     document.getElementById("artikel").value.trim();
 
     if(!register[artikel]){
+
         alert("Artikeln finns inte");
+
         return;
+
     }
 
     let antal =
@@ -251,21 +344,29 @@ function uppdateraVikt(){
     let vikt =
     Number(document.getElementById("vikt").value);
 
-    let nyVikt = vikt / antal;
+    let styckvikt =
+    vikt / antal;
 
-    register[artikel].styckvikt = nyVikt;
-    register[artikel].verifierad = idag();
+    register[artikel].styckvikt =
+    styckvikt;
+
+    register[artikel].verifierad =
+    idag();
 
     register[artikel].historik.push({
+
         datum:idag(),
-        styckvikt:nyVikt
+        styckvikt:styckvikt
+
     });
 
-    spara();
+    sparaData();
+
     visaRegister();
 
     document.getElementById("info").innerHTML =
-    "Vikt uppdaterad.";
+    "Vikten uppdaterad";
+
 }
 
 function beraknaPlock(){
@@ -277,22 +378,108 @@ function beraknaPlock(){
     Number(document.getElementById("plockAntal").value);
 
     if(!register[artikel]){
+
         alert("Artikel saknas");
+
         return;
+
     }
 
     let styckvikt =
     register[artikel].styckvikt;
 
-    let vikt =
+    let totalvikt =
     styckvikt * antal;
 
     document.getElementById("resultat").innerHTML =
 
     `
-    Målvikt: ${vikt.toFixed(3)} g<br>
-    Styckvikt: ${styckvikt.toFixed(6)} g/st
+    ${totalvikt.toFixed(3)} g
+    <br>
+    <span style="font-size:16px">
+    Styckvikt:
+    ${styckvikt.toFixed(6)} g
+    </span>
     `;
+
+}
+
+function visaRegister(){
+
+    let filter =
+    document.getElementById("sok")
+    .value
+    .toLowerCase();
+
+    let html = "";
+
+    Object.entries(register)
+
+    .forEach(([artikel,data]) => {
+
+    let text =
+    (artikel + " " +
+     data.beskrivning)
+     .toLowerCase();
+
+    if(!text.includes(filter))
+        return;
+
+    let historik =
+    data.historik
+    .map(x =>
+
+        x.datum +
+        " : " +
+        x.styckvikt.toFixed(6)
+
+    )
+
+    .join("<br>");
+
+    html +=
+
+    `
+    <tr>
+
+        <td>${artikel}</td>
+
+        <td>${data.beskrivning}</td>
+
+        <td>
+        ${data.styckvikt.toFixed(6)}
+        </td>
+
+        <td>
+        ${data.verifierad}
+        </td>
+
+        <td>
+        ${statusText(data.verifierad)}
+        </td>
+
+        <td class="small">
+        ${historik}
+        </td>
+
+        <td>
+
+        <button onclick="raderaArtikel('${artikel}')">
+
+        Radera
+
+        </button>
+
+        </td>
+
+    </tr>
+    `;
+
+    });
+
+    document.getElementById("tabell").innerHTML =
+    html;
+
 }
 
 function raderaArtikel(artikel){
@@ -301,91 +488,54 @@ function raderaArtikel(artikel){
 
         delete register[artikel];
 
-        spara();
+        sparaData();
+
         visaRegister();
+
     }
-}
 
-function visaRegister(){
-
-    let filter =
-    document.getElementById("sok")
-    .value.toLowerCase();
-
-    let html = "";
-
-    Object.entries(register).forEach(([art,data])=>{
-
-        let text =
-        (art + " " +
-         data.beskrivning)
-         .toLowerCase();
-
-        if(!text.includes(filter))
-            return;
-
-        let historik =
-        data.historik.map(h=>
-        `${h.datum}: ${h.styckvikt.toFixed(6)}`
-        ).join("<br>");
-
-        html += `
-        <tr>
-            <td>${art}</td>
-            <td>${data.beskrivning}</td>
-            <td>${data.styckvikt.toFixed(6)}</td>
-            <td>${data.verifierad}</td>
-            <td>${statusFarg(data.verifierad)}</td>
-            <td class="history">${historik}</td>
-            <td>
-            <button onclick="raderaArtikel('${art}')">
-            Radera
-            </button>
-            </td>
-        </tr>
-        `;
-    });
-
-    document.getElementById("tabell").innerHTML = html;
-}
-
-function spara(){
-
-    localStorage.setItem(
-        "viktregister",
-        JSON.stringify(register)
-    );
 }
 
 function exportExcel(){
 
     let data = [];
 
-    Object.entries(register).forEach(([art,obj])=>{
+    Object.entries(register)
+
+    .forEach(([artikel,obj]) => {
 
         data.push({
 
-            Artikel:art,
-            Beskrivning:obj.beskrivning,
-            Styckvikt:obj.styckvikt,
-            SenastVerifierad:obj.verifierad
+        Artikel:artikel,
+        Beskrivning:obj.beskrivning,
+        Styckvikt:obj.styckvikt,
+        SenastVerifierad:obj.verifierad
+
         });
+
     });
 
-    let ws = XLSX.utils.json_to_sheet(data);
+    let ws =
+    XLSX.utils.json_to_sheet(data);
 
-    let wb = XLSX.utils.book_new();
+    let wb =
+    XLSX.utils.book_new();
 
     XLSX.utils.book_append_sheet(
+
         wb,
         ws,
         "Viktregister"
+
     );
 
     XLSX.writeFile(
+
         wb,
         "Viktregister.xlsx"
+
     );
+
 }
 
 function importExcel(){
@@ -395,8 +545,11 @@ function importExcel(){
     .files[0];
 
     if(!file){
+
         alert("Välj fil");
+
         return;
+
     }
 
     let reader =
@@ -412,13 +565,13 @@ function importExcel(){
 
         let ws =
         wb.Sheets[
-            wb.SheetNames[0]
+        wb.SheetNames[0]
         ];
 
         let rows =
         XLSX.utils.sheet_to_json(ws);
 
-        rows.forEach(r=>{
+        rows.forEach(r => {
 
             if(!r.Artikel)
                 return;
@@ -442,15 +595,19 @@ function importExcel(){
                     Number(r.Styckvikt || 0)
                 }]
             };
+
         });
 
-        spara();
+        sparaData();
+
         visaRegister();
 
         alert("Import klar");
+
     };
 
     reader.readAsArrayBuffer(file);
+
 }
 
 visaRegister();
